@@ -1356,6 +1356,36 @@ def get_goal_vector(Ag=None):
     else:
         raise TypeError("Unknown input type")
 
+def test_environment_loop(env, episodes=6, 
+                          pausetime = 0.00000001, # pause time in plot
+                          speed=11.0):
+
+    # Prep the rendering figure
+    plt.ion(); fig, ax = env.render(); plt.show()
+    plt.pause(pausetime)
+
+    print("Agent names: ",env.agent_names)
+    while env.episode < episodes:
+        # Get the direction to the goal
+        dir_to_reward = {name:get_goal_vector(Ag)
+                         for name, Ag in env.Ags.items()}
+        drift_velocity = {agent : speed * env.Ags[agent].speed_mean * 
+                (dir_to_reward / np.linalg.norm(dir_to_reward))
+                for (agent, dir_to_reward) in dir_to_reward.items()}
+        # Step the environment with actions
+        observation, reward, terminate_episode, _, info = \
+                env.step(drift_velocity)
+        # Render environment
+        env.render()
+        plt.pause(pausetime)
+        # Check if we are done
+        if any(terminate_episode.values()):
+            print("done! reward:", reward)
+            env.reset()
+
+    return fig, ax
+
+
 # ======================== #
 ### BASIC TESTING CODE #####
 # ======================== #
@@ -1364,8 +1394,7 @@ def get_goal_vector(Ag=None):
 active = True
 if active and __name__ == "__main__":
 
-    speed = 12 # dials how fast agent runs
-    pausetime = 0.00000001 # pause time in plot
+    
     plt.close('all')
 
     #################################################################
@@ -1408,27 +1437,5 @@ if active and __name__ == "__main__":
     #################################################################
     #################################################################
 
-    # Prep the rendering figure
-    plt.ion(); env.render(); plt.show()
-    plt.pause(pausetime)
-
-
-    print("Agent names: ",env.agent_names)
-    while env.episode < 6:
-        # Get the direction to the goal
-        dir_to_reward = {"agent_0":get_goal_vector(Ag),
-                         "agent_1":get_goal_vector(Ag2)}
-        drift_velocity = {agent : speed * Ag.speed_mean * 
-                (dir_to_reward / np.linalg.norm(dir_to_reward))
-                for (agent, dir_to_reward) in dir_to_reward.items()}
-        # Step the environment with actions
-        observation, reward, terminate_episode, _, info = \
-                env.step(drift_velocity)
-        # Render environment
-        env.render()
-        plt.pause(pausetime)
-        # Check if we are done
-        if any(terminate_episode.values()):
-            print("done! reward:", reward)
-            env.reset()
+    test_environment_loop(env, episodes=6, speed=8.0)
 

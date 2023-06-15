@@ -23,7 +23,7 @@ def create_env():
     """
     goalcachekws = dict(agentmode="interact", goalorder="nonsequential",
                         reset_n_goals=5, verbose=False)
-    rewardcachekws = dict(default_reward_level=-0.1)
+    rewardcachekws = dict(default_reward_level=-0.01)
     # Create a test environment
     env = SpatialGoalEnvironment(params={'dimensionality':'2D'},
                                  render_every=1, teleport_on_reset=False,
@@ -92,7 +92,7 @@ if __name__ == "__main__":
         checkpoint_freq=10, # Save a checkpoint every 10 iterations
         local_dir=save_dir, # Where to save results
         config=config,
-        resume=False
+        resume=True
     )
     ray.shutdown() # shutdown ray
 
